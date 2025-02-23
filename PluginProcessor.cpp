@@ -151,7 +151,7 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
         buffer.clear(i, 0, n_samples);
     }
 
-    // gain & invert phase & mute
+    // gain &  mute
     buffer.applyGain(*gain * (*mute ? 0 : 1));
 
     // panning & phase inversion
