@@ -154,7 +154,7 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
     // gain & invert phase & mute
     buffer.applyGain(*gain * (*mute ? 0 : 1));
 
-    // panning
+    // panning & phase inversion
     for (int i = 0; i < n_o_channels; i++)
     {
         auto left = (1.0f - *pan_balance) * (*invert_left ? -1.0f : 1.0f);
