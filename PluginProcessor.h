@@ -45,7 +45,15 @@ public:
 
 private:
     juce::AudioParameterFloat *gain;
+
     juce::AudioParameterFloat *pan_balance;
+
+    juce::AudioParameterBool *invert_left;
+    juce::AudioParameterBool *invert_right;
+
+    juce::AudioParameterBool *mono;
+    
+    juce::AudioParameterBool *mute;
     juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients<float>> filter;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPluginAudioProcessor)

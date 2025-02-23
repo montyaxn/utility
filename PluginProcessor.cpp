@@ -23,6 +23,10 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
                                                              0.0f,
                                                              1.0f,
                                                              0.5f));
+    addParameter(invert_left = new juce::AudioParameterBool("invert_left", "L_Invert", false));
+    addParameter(invert_right = new juce::AudioParameterBool("invert_right", "R_Invert", false));
+    addParameter(mute = new juce::AudioParameterBool("mute", "Mute", false));
+    addParameter(mono = new juce::AudioParameterBool("mono", "Mono", false));
 }
 
 AudioPluginAudioProcessor::~AudioPluginAudioProcessor()
@@ -140,16 +144,26 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
     auto n_i_channels = getNumInputChannels();
     auto n_o_channels = getNumOutputChannels();
     auto n_samples = buffer.getNumSamples();
+
+    // clear output buffer if there is no corresponding input buffer
     for (int i = n_i_channels; i < n_o_channels; i++)
     {
         buffer.clear(i, 0, n_samples);
     }
-    buffer.applyGain(*gain);
+
+    // gain & invert phase & mute
+    buffer.applyGain(*gain * (*mute ? 0 : 1));
+
+    // panning
     for (int i = 0; i < n_o_channels; i++)
     {
-        buffer.applyGain(i, 0, n_samples, (i % 2 == 0) ? 1.0 - *pan_balance : *pan_balance);
+        auto left = (1.0f - *pan_balance) * (*invert_left ? -1.0f : 1.0f);
+        auto right = (*pan_balance) * (*invert_right ? -1.0f : 1.0f);
+        auto g = (i % 2 == 0) ? left : right;
+        buffer.applyGain(i, 0, n_samples, g);
     }
-    
+
+    // filter
     juce::dsp::AudioBlock<float> block(buffer);
     juce::dsp::ProcessContextReplacing<float> context(block);
     filter.process(context);
